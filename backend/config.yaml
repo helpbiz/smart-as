@@ -1,0 +1,18 @@
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: smart_as
+  sslmode: disable
+
+jwt:
+  secret: your-super-secret-key-change-in-production
+  expiry_hours: 24
+
+server:
+  host: 0.0.0.0
+  port: 8080
+
+fcm:
+  credentials_file: ./fcm-credentials.json
