@@ -130,7 +130,7 @@ func (h *AdminHandler) ExportExcel(c *gin.Context) {
 		Fill: excelize.Fill{Type: "pattern", Color: []string{"#E0E0E0"}, Pattern: 1},
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
-	f.SetRowStyle(sheetName, 1, style)
+	f.SetRowStyle(sheetName, 1, 1, style)
 
 	requests, err := h.svc.GetRepairRequestsForExport()
 	if err != nil {
@@ -220,15 +220,4 @@ func getPaymentMethodText(method string) string {
 	default:
 		return method
 	}
-}
-
-func parseUint(s string) uint {
-	var n uint64
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			return 0
-		}
-		n = n*10 + uint64(c-'0')
-	}
-	return uint(n)
 }

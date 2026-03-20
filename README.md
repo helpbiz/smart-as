@@ -39,7 +39,7 @@ npm run dev
 ### 관리자 계정 생성
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/admin/register \
+curl -X POST http://localhost:8088/api/v1/admin/register \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "admin123"}'
 ```
@@ -49,7 +49,7 @@ curl -X POST http://localhost:8080/api/v1/admin/register \
 | 서비스 | URL |
 |--------|-----|
 | Admin Web | http://localhost:3000 |
-| Backend API | http://localhost:8080 |
+| Backend API | http://localhost:8088 |
 | 관리자 로그인 | admin / admin123 |
 
 ## 📁 프로젝트 구조
@@ -147,7 +147,7 @@ jwt:
 
 server:
   host: 0.0.0.0
-  port: 8080
+  port: 8088
 
 fcm:
   credentials_file: ./fcm-credentials.json  # 선택사항
@@ -161,10 +161,10 @@ API 테스트는 [`docs/setup/testing.md`](./docs/setup/testing.md)를 참고하
 
 ```bash
 # 서버 상태 확인
-curl http://localhost:8080/health
+curl http://localhost:8088/health
 
 # 관리자 로그인
-curl -X POST http://localhost:8080/api/v1/admin/login \
+curl -X POST http://localhost:8088/api/v1/admin/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "admin123"}'
 ```

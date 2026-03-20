@@ -273,7 +273,7 @@ func (s *Service) CompleteRepair(techID, requestID uint, req *models.CompleteRep
 		return err
 	}
 
-	go s.notifyCustomerRequestCompleted(req.UserID, repReq.ProductName)
+	go s.notifyCustomerRequestCompleted(repReq.UserID, repReq.ProductName)
 
 	return nil
 }

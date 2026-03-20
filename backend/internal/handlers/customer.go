@@ -69,9 +69,9 @@ func (h *CustomerHandler) CreateRepairRequest(c *gin.Context) {
 
 func (h *CustomerHandler) GetRepairRequest(c *gin.Context) {
 	id := c.Param("id")
+	requestID := parseUint(id)
 
-	var requestID uint
-	if _, err := parseUint(id, &requestID); err != nil {
+	if requestID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
@@ -112,16 +112,4 @@ func (h *CustomerHandler) UpdateFCMToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "fcm token updated"})
-}
-
-func parseUint(s string, v *uint) (int, error) {
-	var n uint64
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			return 0, nil
-		}
-		n = n*10 + uint64(c-'0')
-	}
-	*v = uint(n)
-	return 1, nil
 }
