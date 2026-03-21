@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import DebugLogin from './pages/DebugLogin';
 import Dashboard from './pages/Dashboard';
 import Technicians from './pages/Technicians';
@@ -14,6 +15,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/d" element={<DebugLogin />} />
       <Route
         path="/*"

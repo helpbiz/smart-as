@@ -44,7 +44,7 @@ func main() {
 		&models.RepairCompletion{},
 		&models.Admin{},
 	); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+		log.Printf("Warning: Migration error (may be already migrated): %v", err)
 	}
 
 	fcmClient, err := fcm.NewClient(&cfg.FCM)

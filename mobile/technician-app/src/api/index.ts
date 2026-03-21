@@ -1,8 +1,11 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import type { AuthResponse, RepairRequest, CompleteRepairRequest, Technician } from '../types';
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+const API_BASE_URL = Platform.OS === 'web' 
+  ? 'http://localhost:8088/api/v1'
+  : 'http://192.168.1.127:8088/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

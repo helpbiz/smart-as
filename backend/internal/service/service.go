@@ -321,11 +321,11 @@ func (s *Service) GetDashboardStats() (*models.DashboardStats, error) {
 	approvedTech, _ := s.repo.GetApprovedTechnicianCount()
 
 	return &models.DashboardStats{
-		TodayRequests:   todayReq,
-		TodayAssigned:   todayAssigned,
-		TodayCompleted:  todayCompleted,
-		PendingRequests: pending,
-		TotalTechnicians: totalTech,
+		TodayRequests:       todayReq,
+		TodayAssigned:       todayAssigned,
+		TodayCompleted:      todayCompleted,
+		PendingRequests:     pending,
+		TotalTechnicians:    totalTech,
 		ApprovedTechnicians: approvedTech,
 	}, nil
 }
@@ -426,12 +426,12 @@ func (s *Service) notifyTechniciansNewRequest(rr *models.RepairRequest) {
 	body := fmt.Sprintf("%s - %s", rr.ProductName, rr.Address)
 
 	s.fcm.SendToMultiple(ctx, tokens, title, body, map[string]string{
-		"type":        "new_request",
-		"request_id":  fmt.Sprintf("%d", rr.ID),
-		"product":     rr.ProductName,
-		"address":     rr.Address,
-		"customer":    rr.CustomerName,
-		"phone":       rr.Phone,
+		"type":       "new_request",
+		"request_id": fmt.Sprintf("%d", rr.ID),
+		"product":    rr.ProductName,
+		"address":    rr.Address,
+		"customer":   rr.CustomerName,
+		"phone":      rr.Phone,
 	})
 }
 
@@ -455,10 +455,10 @@ func (s *Service) notifyCustomerRequestAccepted(req *models.RepairRequest, techI
 	body := fmt.Sprintf("%s 기사가 수리를 수락했습니다.", tech.Name)
 
 	s.fcm.SendNotification(ctx, user.FCMToken, title, body, map[string]string{
-		"type":        "request_accepted",
-		"request_id":  fmt.Sprintf("%d", req.ID),
-		"technician":  tech.Name,
-		"phone":       tech.Phone,
+		"type":       "request_accepted",
+		"request_id": fmt.Sprintf("%d", req.ID),
+		"technician": tech.Name,
+		"phone":      tech.Phone,
 	})
 }
 

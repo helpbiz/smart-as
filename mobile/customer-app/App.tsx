@@ -42,7 +42,7 @@ export default function App() {
   if (checkingAuth) {
     return (
       <View style={styles.loading}>
-        <Text>로딩 중...</Text>
+        <Text style={{color: '#333'}}>로딩 중...</Text>
       </View>
     );
   }

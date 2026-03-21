@@ -12,7 +12,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import { authApi, repairApi } from '../src/api';
+import { authApi, repairApi } from '../api';
 
 export default function CreateRequestScreen() {
   const [loading, setLoading] = useState(false);

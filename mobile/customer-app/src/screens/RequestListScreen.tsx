@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { useState, useEffect } from 'react';
-import { repairApi } from '../src/api';
-import { RepairRequest } from '../src/types';
+import { repairApi } from '../api';
+import { RepairRequest } from '../types';
 
 const statusLabels = {
   pending: '대기중',

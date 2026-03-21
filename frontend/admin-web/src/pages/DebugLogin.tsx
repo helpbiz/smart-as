@@ -48,10 +48,10 @@ export default function DebugLogin() {
       <p><strong>Body:</strong> {"{ username: 'admin', password: 'admin123' }"}</p>
       <br />
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={testFetch} disabled={loading}>
+        <button onClick={testFetch} disabled={!!loading}>
           {loading === 'fetch' ? '...' : 'Test fetch'}
         </button>
-        <button onClick={testAxios} disabled={loading}>
+        <button onClick={testAxios} disabled={!!loading}>
           {loading === 'axios' ? '...' : 'Test axios (same as Login page)'}
         </button>
       </div>
