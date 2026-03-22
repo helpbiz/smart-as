@@ -112,7 +112,7 @@ func (h *AdminHandler) ExportExcel(c *gin.Context) {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	sheetName := "수리 요청 현황"
+	sheetName := "Sheet1"
 
 	headers := []string{
 		"번호", "접수일", "고객명", "연락처", "주소",
@@ -126,8 +126,8 @@ func (h *AdminHandler) ExportExcel(c *gin.Context) {
 	}
 
 	style, _ := f.NewStyle(&excelize.Style{
-		Font: &excelize.Font{Bold: true},
-		Fill: excelize.Fill{Type: "pattern", Color: []string{"#E0E0E0"}, Pattern: 1},
+		Font:      &excelize.Font{Bold: true},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"#E0E0E0"}, Pattern: 1},
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
 	f.SetRowStyle(sheetName, 1, 1, style)
