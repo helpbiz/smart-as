@@ -5,7 +5,7 @@ import type { AuthResponse, RepairRequest, CompleteRepairRequest, Technician } f
 
 const API_BASE_URL = Platform.OS === 'web' 
   ? 'http://localhost:8088/api/v1'
-  : 'http://192.168.1.127:8088/api/v1';
+  : 'http://192.168.1.2:8088/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

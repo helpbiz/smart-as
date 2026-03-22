@@ -1,18 +1,30 @@
-import { useQuery } from '@tanstack/react-query';
-import { statisticsApi } from '../api';
+import { useEffect, useState } from 'react';
+import api from '../api';
 import type { Statistics } from '../types';
 
 export default function Statistics() {
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['statistics'],
-    queryFn: async () => {
-      const response = await statisticsApi.get();
-      return response.data;
-    },
-  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<Statistics | null>(null);
 
-  if (isLoading) {
+  useEffect(() => {
+    api.get('/admin/statistics')
+      .then(res => {
+        setStats(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
     return <div className="text-gray-500">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">오류: {error}</div>;
   }
 
   const statistics = (stats || {
