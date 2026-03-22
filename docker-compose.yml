@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: as-system-db
+    restart: always
+    environment:
+      POSTGRES_USER: smartas
+      POSTGRES_PASSWORD: smart1234
+      POSTGRES_DB: smart_as
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: foryouelec-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://smartas:smart1234@db:5432/smart_as
+
+  admin-web:
+    build: 
+      context: ./frontend/admin-web
+    container_name: foryouelec-admin
+    ports:
+      - "3000:80"
+    restart: always
+    depends_on:
+      - app

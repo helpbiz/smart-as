@@ -1,18 +1,8 @@
 database:
-  host: localhost
-  port: 5432
+  host: db
   user: smartas
-  password: smartas123
+  password: smart1234
   dbname: smart_as
-  sslmode: disable
-
-jwt:
-  secret: your-super-secret-key-change-in-production
-  expiry_hours: 24
-
+  port: 5432
 server:
-  host: 0.0.0.0
-  port: 8088
-
-fcm:
-  credentials_file: ./fcm-credentials.json
+  port: 8080
