@@ -24,6 +24,25 @@ export const authApi = {
 
 export const repairApi = {
   create: (data: any) => api.post('/customer/repair-requests', data),
+  createWithPhotos: async (data: any, photoUris: string[]) => {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => {
+      formData.append(key, data[key]);
+    });
+    for (const uri of photoUris) {
+      const filename = uri.split('/').pop() || 'photo.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      formData.append('photos', {
+        uri,
+        name: filename,
+        type,
+      } as any);
+    }
+    return api.post('/customer/repair-requests/with-photos', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
   list: () => api.get('/customer/repair-requests'),
   get: (id: number) => api.get(`/customer/repair-requests/${id}`),
   updateFCMToken: (token: string) =>

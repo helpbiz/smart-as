@@ -69,6 +69,8 @@ func main() {
 			customer.POST("/register", customerHandler.Register)
 			customer.POST("/login", customerHandler.Login)
 			customer.POST("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequest)
+			customer.POST("/repair-requests/with-photos", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequestWithPhotos)
+			customer.POST("/upload-photo", middleware.AuthMiddleware(svc), customerHandler.UploadPhoto)
 			customer.GET("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.ListRepairRequests)
 			customer.GET("/repair-requests/:id", middleware.AuthMiddleware(svc), customerHandler.GetRepairRequest)
 			customer.PUT("/repair-requests/:id/fcm-token", middleware.AuthMiddleware(svc), customerHandler.UpdateFCMToken)
@@ -103,6 +105,7 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	r.Static("/uploads", "./uploads")
 	r.Static("/assets", "./frontend/admin-web/dist/assets")
 	r.StaticFile("/", "./frontend/admin-web/dist/index.html")
 	r.NoRoute(func(c *gin.Context) {

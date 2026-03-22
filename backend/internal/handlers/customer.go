@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"smart-as/internal/models"
 	"smart-as/internal/service"
@@ -58,7 +62,7 @@ func (h *CustomerHandler) CreateRepairRequest(c *gin.Context) {
 		return
 	}
 
-	rr, err := h.svc.CreateRepairRequest(userID, &req)
+	rr, err := h.svc.CreateRepairRequest(userID, &req, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -112,4 +116,70 @@ func (h *CustomerHandler) UpdateFCMToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "fcm token updated"})
+}
+
+func (h *CustomerHandler) UploadPhoto(c *gin.Context) {
+	file, err := c.FormFile("photo")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no file uploaded"})
+		return
+	}
+
+	ext := filepath.Ext(file.Filename)
+	filename := fmt.Sprintf("%d_%d%s", time.Now().UnixNano(), 0, ext)
+	uploadDir := "./uploads"
+
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create upload directory"})
+		return
+	}
+
+	filepath := filepath.Join(uploadDir, filename)
+	if err := c.SaveUploadedFile(file, filepath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"url":      "/uploads/" + filename,
+		"filename": filename,
+	})
+}
+
+func (h *CustomerHandler) CreateRepairRequestWithPhotos(c *gin.Context) {
+	userID := c.GetUint("user_id")
+
+	var req models.CreateRepairRequest
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	form, _ := c.MultipartForm()
+	var photoURLs []string
+
+	if form != nil && form.File["photos"] != nil {
+		files := form.File["photos"]
+		uploadDir := "./uploads"
+		os.MkdirAll(uploadDir, 0755)
+
+		for i, file := range files {
+			ext := filepath.Ext(file.Filename)
+			filename := fmt.Sprintf("%d_%d%s", time.Now().UnixNano(), i, ext)
+			filepath := filepath.Join(uploadDir, filename)
+
+			if err := c.SaveUploadedFile(file, filepath); err != nil {
+				continue
+			}
+			photoURLs = append(photoURLs, "/uploads/"+filename)
+		}
+	}
+
+	rr, err := h.svc.CreateRepairRequest(userID, &req, photoURLs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, rr)
 }

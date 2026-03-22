@@ -60,17 +60,26 @@ export default function CreateRequestScreen() {
 
     setLoading(true);
     try {
-      await repairApi.create({
+      const payload = {
         ...formData,
-        latitude: location?.latitude,
-        longitude: location?.longitude,
-        symptom_photos: photos,
-      });
+        latitude: location?.latitude || 0,
+        longitude: location?.longitude || 0,
+      };
+      
+      if (photos.length > 0) {
+        await repairApi.createWithPhotos(payload, photos);
+      } else {
+        await repairApi.create(payload);
+      }
+      
       Alert.alert('성공', 'A/S 접수가 완료되었습니다.', [
-        { text: '확인', onPress: () => setFormData({
-          product_name: '', purchase_date: '', customer_name: '',
-          phone: '', address: '', symptom_description: '',
-        })},
+        { text: '확인', onPress: () => {
+          setFormData({
+            product_name: '', purchase_date: '', customer_name: '',
+            phone: '', address: '', symptom_description: '',
+          });
+          setPhotos([]);
+        }},
       ]);
     } catch (error: any) {
       Alert.alert('오류', error.response?.data?.error || '접수 실패');

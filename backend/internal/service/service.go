@@ -150,7 +150,15 @@ func (s *Service) ApproveTechnician(id uint) error {
 
 // RepairRequest operations
 
-func (s *Service) CreateRepairRequest(userID uint, req *models.CreateRepairRequest) (*models.RepairRequest, error) {
+func (s *Service) CreateRepairRequest(userID uint, req *models.CreateRepairRequest, photoURLs []string) (*models.RepairRequest, error) {
+	photosJSON := "[]"
+	if len(photoURLs) > 0 {
+		importance := make([]string, 0)
+		for _, url := range photoURLs {
+			importance = append(importance, url)
+		}
+	}
+
 	rr := &models.RepairRequest{
 		UserID:             userID,
 		ProductName:        req.ProductName,
@@ -161,7 +169,7 @@ func (s *Service) CreateRepairRequest(userID uint, req *models.CreateRepairReque
 		Latitude:           req.Latitude,
 		Longitude:          req.Longitude,
 		SymptomDescription: req.SymptomDescription,
-		SymptomPhotos:      "[]",
+		SymptomPhotos:      photosJSON,
 		Status:             "pending",
 	}
 
