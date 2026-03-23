@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 
 const navItems = [
   { path: '/', label: '대시보드', icon: '📊' },
@@ -8,7 +8,7 @@ const navItems = [
   { path: '/export', label: '엑셀 출력', icon: '📥' },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout() {
   const location = useLocation();
 
   const handleLogout = () => {
@@ -48,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
-        {children}
+        <Outlet />
       </main>
     </div>
   );

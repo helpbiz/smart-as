@@ -17,24 +17,17 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/d" element={<DebugLogin />} />
-      <Route
-        path="/*"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/technicians" element={<Technicians />} />
-                <Route path="/requests" element={<Requests />} />
-                <Route path="/statistics" element={<Statistics />} />
-                <Route path="/export" element={<Export />} />
-              </Routes>
-            </Layout>
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
+      {isAuthenticated ? (
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="technicians" element={<Technicians />} />
+          <Route path="requests" element={<Requests />} />
+          <Route path="statistics" element={<Statistics />} />
+          <Route path="export" element={<Export />} />
+        </Route>
+      ) : (
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      )}
     </Routes>
   );
 }
