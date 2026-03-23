@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api';
 
 export default function Login() {
@@ -18,7 +18,7 @@ export default function Login() {
       const response = await authApi.login(username, password);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.user.role || 'admin');
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || '로그인에 실패했습니다');
     } finally {
@@ -63,16 +63,10 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 mb-4"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50"
           >
             {loading ? '로그인 중...' : '로그인'}
           </button>
-          
-          <div className="text-center">
-            <Link to="/register" className="text-blue-600 hover:text-blue-800 text-sm">
-              계정이 없으신가요? 회원가입
-            </Link>
-          </div>
         </form>
       </div>
     </div>

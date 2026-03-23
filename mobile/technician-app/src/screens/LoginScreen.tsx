@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authApi } from '../api';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleLogin = async () => {
     if (!phone || !password) {
-      Alert.alert('입력 오류', '연락처와 비밀번호를 입력해주세요.');
+      setErrorMsg('연락처와 비밀번호를 입력해주세요.');
       return;
     }
 
     setLoading(true);
+    setErrorMsg('');
     try {
       const response = await authApi.login(phone, password);
       if (response.data.user.status !== 'approved') {
-        Alert.alert('알림', '가입 승인 대기 중입니다. 관리자의 승인을 기다려주세요.');
-        await AsyncStorage.removeItem('token');
+        setErrorMsg('가입 승인 대기 중입니다. 관리자의 승인을 기다려주세요.');
         return;
       }
       onLogin();
     } catch (error: any) {
       const message = error.response?.data?.error || '로그인 실패';
-      Alert.alert('로그인 실패', message);
+      setErrorMsg(message);
     } finally {
       setLoading(false);
     }
@@ -54,6 +54,12 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
           autoComplete="password"
         />
 
+        {errorMsg ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        ) : null}
+
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleLogin}
@@ -79,4 +85,6 @@ const styles = StyleSheet.create({
   button: { backgroundColor: '#007AFF', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
   buttonDisabled: { opacity: 0.6 },
   buttonText: { color: '#fff', fontSize: 18, fontWeight: '600' },
+  errorBox: { backgroundColor: '#FFE5E5', padding: 12, borderRadius: 8 },
+  errorText: { color: '#D00', fontSize: 14, textAlign: 'center' },
 });

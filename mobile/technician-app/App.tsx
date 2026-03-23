@@ -70,7 +70,12 @@ export default function App() {
 
   const checkAuth = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      let token = null;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        token = window.localStorage.getItem('token');
+      } else {
+        token = await AsyncStorage.getItem('token');
+      }
       if (token) {
         setIsLoggedIn(true);
       }
@@ -86,8 +91,13 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('technician');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem('token');
+      window.localStorage.removeItem('technician');
+    } else {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('technician');
+    }
     setIsLoggedIn(false);
   };
 

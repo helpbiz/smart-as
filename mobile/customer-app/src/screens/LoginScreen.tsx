@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authApi } from '../api';
+import PrivacyPolicyScreen from './PrivacyPolicyScreen';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const validatePhone = (phoneNumber: string): boolean => {
     const phoneRegex = /^01[0-9]{8,9}$/;
@@ -17,28 +20,34 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
 
   const handleLogin = async () => {
+    setErrorMsg('');
     if (!phone || !password) {
-      Alert.alert('입력 오류', '연락처와 비밀번호를 입력해주세요.');
+      setErrorMsg('연락처와 비밀번호를 입력해주세요.');
       return;
     }
 
     const cleanPhone = phone.replace(/[-\s]/g, '');
     if (!validatePhone(cleanPhone)) {
-      Alert.alert('입력 오류', '올바른 연락처를 입력해주세요. (예: 01012345678)');
+      setErrorMsg('올바른 연락처를 입력해주세요. (예: 01012345678)');
       return;
     }
 
     setLoading(true);
     try {
       const response = await authApi.login(cleanPhone, password);
-      await AsyncStorage.setItem('token', response.data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('token', response.data.token);
+        window.localStorage.setItem('user', JSON.stringify(response.data.user));
+      } else {
+        await AsyncStorage.setItem('token', response.data.token);
+        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+      }
       onLogin();
     } catch (error: any) {
       if (error.code === 'ECONNABORTED' || !error.response) {
-        Alert.alert('연결 오류', '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+        setErrorMsg('서버에 연결할 수 없습니다.');
       } else {
-        Alert.alert('로그인 실패', error.response?.data?.error || '연락처 또는 비밀번호를 확인해주세요.');
+        setErrorMsg(error.response?.data?.error || '로그인 실패');
       }
     } finally {
       setLoading(false);
@@ -46,46 +55,42 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
 
   const handleRegister = async () => {
+    setErrorMsg('');
     if (!phone || !password || !name) {
-      Alert.alert('입력 오류', '연락처, 이름, 비밀번호를 모두 입력해주세요.');
+      setErrorMsg('연락처, 이름, 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    if (!agreed) {
+      setErrorMsg('개인정보 수집·이용에 동의해주세요.');
       return;
     }
 
     const cleanPhone = phone.replace(/[-\s]/g, '');
     if (!validatePhone(cleanPhone)) {
-      Alert.alert('입력 오류', '올바른 연락처를 입력해주세요. (예: 01012345678)');
+      setErrorMsg('올바른 연락처를 입력해주세요. (예: 01012345678)');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('입력 오류', '비밀번호는 6자 이상이어야 합니다.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('입력 오류', '비밀번호가 일치하지 않습니다.');
+      setErrorMsg('비밀번호는 6자 이상이어야 합니다.');
       return;
     }
 
     setLoading(true);
     try {
       await authApi.register(cleanPhone, name, '', password);
-      Alert.alert('회원가입 성공', '로그인 해주세요.', [
-        {
-          text: '확인',
-          onPress: () => {
-            setIsRegisterMode(false);
-            setPassword('');
-            setConfirmPassword('');
-            setPhone(cleanPhone);
-          },
-        },
-      ]);
+      setErrorMsg('');
+      alert('회원가입 성공! 로그인 해주세요.');
+      setIsRegisterMode(false);
+      setPassword('');
+      setAgreed(false);
+      setPhone(cleanPhone);
     } catch (error: any) {
       if (error.code === 'ECONNABORTED' || !error.response) {
-        Alert.alert('연결 오류', '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+        setErrorMsg('서버에 연결할 수 없습니다.');
       } else {
-        Alert.alert('회원가입 실패', error.response?.data?.error || '다시 시도해주세요.');
+        setErrorMsg(error.response?.data?.error || '회원가입 실패');
       }
     } finally {
       setLoading(false);
@@ -102,7 +107,8 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
           style={[styles.tab, !isRegisterMode && styles.activeTab]}
           onPress={() => {
             setIsRegisterMode(false);
-            setConfirmPassword('');
+            setAgreed(false);
+            setErrorMsg('');
           }}
         >
           <Text style={[styles.tabText, !isRegisterMode && styles.activeTabText]}>로그인</Text>
@@ -117,7 +123,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.form}>
+      <ScrollView style={styles.form} keyboardShouldPersistTaps="handled">
         <View style={styles.inputContainer}>
           <Text style={styles.label}>연락처</Text>
           <TextInput
@@ -157,21 +163,40 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </View>
 
         {isRegisterMode && (
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>비밀번호 확인</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호 다시 입력"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              editable={!loading}
-            />
+          <View style={styles.agreementContainer}>
+            <TouchableOpacity 
+              style={styles.checkboxRow}
+              onPress={() => setAgreed(!agreed)}
+            >
+              <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
+                {agreed && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.agreementText}>
+                회원가입 시 개인정보 수집·이용에 동의합니다.
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.policyLink}
+              onPress={() => setShowPrivacyModal(true)}
+            >
+              <Text style={styles.policyLinkText}>[개인정보처리방침 보기]</Text>
+            </TouchableOpacity>
           </View>
         )}
 
+        {errorMsg ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        ) : null}
+
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[
+            styles.button, 
+            loading && styles.buttonDisabled,
+            isRegisterMode && !agreed && styles.buttonDisabled
+          ]}
           onPress={() => {
             if (isRegisterMode) {
               handleRegister();
@@ -179,7 +204,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
               handleLogin();
             }
           }}
-          disabled={loading}
+          disabled={loading || (isRegisterMode && !agreed)}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -201,14 +226,22 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <TouchableOpacity
             onPress={() => {
               setIsRegisterMode(false);
-              setConfirmPassword('');
+              setAgreed(false);
             }}
             disabled={loading}
           >
             <Text style={styles.linkText}>로그인 하러가기 →</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </ScrollView>
+
+      <Modal
+        visible={showPrivacyModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <PrivacyPolicyScreen onClose={() => setShowPrivacyModal(false)} />
+      </Modal>
     </View>
   );
 }
@@ -216,8 +249,6 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 24,
     backgroundColor: '#fff',
   },
   title: {
@@ -225,17 +256,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#007AFF',
+    marginTop: 40,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     color: '#666',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   tabs: {
     flexDirection: 'row',
-    marginBottom: 24,
+    marginHorizontal: 24,
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#f0f0f0',
@@ -257,16 +289,18 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   form: {
-    gap: 8,
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   inputContainer: {
-    marginBottom: 4,
+    marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 6,
+    marginBottom: 8,
     marginLeft: 4,
   },
   input: {
@@ -277,15 +311,58 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
   },
+  agreementContainer: {
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  checkboxChecked: {
+    backgroundColor: '#007AFF',
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  agreementText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  policyLink: {
+    marginTop: 12,
+    marginLeft: 36,
+  },
+  policyLinkText: {
+    fontSize: 14,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
   button: {
     backgroundColor: '#007AFF',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 8,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    backgroundColor: '#ccc',
   },
   buttonText: {
     color: '#fff',
@@ -297,5 +374,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginTop: 20,
+    marginBottom: 40,
+  },
+  errorContainer: {
+    backgroundColor: '#FFE5E5',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  errorText: {
+    color: '#D00',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

@@ -3,9 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import type { AuthResponse, RepairRequest, CompleteRepairRequest, Technician } from '../types';
 
-const API_BASE_URL = Platform.OS === 'web' 
-  ? 'http://localhost:8088/api/v1'
-  : 'http://192.168.1.2:8088/api/v1';
+const API_BASE_URL = 'http://192.168.1.127:8088/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -16,7 +14,12 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token');
+  let token = null;
+  if (typeof window !== 'undefined' && window.localStorage) {
+    token = window.localStorage.getItem('token');
+  } else {
+    token = await AsyncStorage.getItem('token');
+  }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -27,8 +30,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('technician');
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('token');
+        window.localStorage.removeItem('technician');
+      } else {
+        AsyncStorage.removeItem('token');
+        AsyncStorage.removeItem('technician');
+      }
     }
     return Promise.reject(error);
   }
@@ -37,8 +45,13 @@ api.interceptors.response.use(
 export const authApi = {
   login: async (phone: string, password: string): Promise<{ data: AuthResponse }> => {
     const response = await api.post<AuthResponse>('/technician/login', { phone, password });
-    await AsyncStorage.setItem('token', response.data.token);
-    await AsyncStorage.setItem('technician', JSON.stringify(response.data.user));
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('token', response.data.token);
+      window.localStorage.setItem('technician', JSON.stringify(response.data.user));
+    } else {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('technician', JSON.stringify(response.data.user));
+    }
     return { data: response.data };
   },
 

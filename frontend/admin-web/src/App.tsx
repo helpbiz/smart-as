@@ -1,33 +1,18 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
+import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DebugLogin from './pages/DebugLogin';
 import Dashboard from './pages/Dashboard';
-import Technicians from './pages/Technicians';
-import Requests from './pages/Requests';
-import Statistics from './pages/Statistics';
-import Export from './pages/Export';
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token');
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/d" element={<DebugLogin />} />
-      {isAuthenticated ? (
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="technicians" element={<Technicians />} />
-          <Route path="requests" element={<Requests />} />
-          <Route path="statistics" element={<Statistics />} />
-          <Route path="export" element={<Export />} />
-        </Route>
-      ) : (
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      )}
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Login />} />
+      <Route path="*" element={<Login />} />
     </Routes>
   );
 }
