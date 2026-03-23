@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -132,7 +133,7 @@ func (h *AdminHandler) ExportExcel(c *gin.Context) {
 	})
 	f.SetRowStyle(sheetName, 1, 1, style)
 
-	requests, err := h.svc.GetRepairRequestsForExport()
+	requests, err := h.svc.GetAllRepairRequests()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -188,10 +189,14 @@ func (h *AdminHandler) ExportExcel(c *gin.Context) {
 		return
 	}
 
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Header("Content-Type", "application/octet-stream")
-	c.File(filepath)
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read file"})
+		return
+	}
+
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", filename))
+	c.Data(http.StatusOK, "application/vnd.ms-excel", data)
 }
 
 func getStatusText(status string) string {

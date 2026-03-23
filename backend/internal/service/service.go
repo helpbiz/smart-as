@@ -159,10 +159,12 @@ func (s *Service) CreateRepairRequest(userID uint, req *models.CreateRepairReque
 		}
 	}
 
+	purchaseDate, _ := time.Parse("2006-01-02", req.PurchaseDate)
+
 	rr := &models.RepairRequest{
 		UserID:             userID,
 		ProductName:        req.ProductName,
-		PurchaseDate:       req.PurchaseDate,
+		PurchaseDate:       purchaseDate,
 		CustomerName:       req.CustomerName,
 		Phone:              req.Phone,
 		Address:            req.Address,

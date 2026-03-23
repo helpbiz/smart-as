@@ -38,26 +38,26 @@ type Technician struct {
 
 // RepairRequest represents an A/S service request
 type RepairRequest struct {
-	ID                   uint           `gorm:"primaryKey" json:"id"`
-	UserID               uint           `gorm:"not null;index" json:"user_id"`
-	TechnicianID         *uint          `gorm:"index" json:"technician_id,omitempty"`
-	ProductName          string         `gorm:"not null" json:"product_name"`
-	PurchaseDate         time.Time      `json:"purchase_date"`
-	CustomerName         string         `gorm:"not null" json:"customer_name"`
-	Phone                string         `gorm:"not null" json:"phone"`
-	Address              string         `gorm:"not null" json:"address"`
-	Latitude             float64        `json:"latitude"`
-	Longitude            float64        `json:"longitude"`
-	SymptomDescription   string         `gorm:"type:text" json:"symptom_description"`
-	SymptomPhotos        string         `gorm:"type:jsonb" json:"symptom_photos"` // JSON array of URLs
-	Status               string         `gorm:"not null;default:pending" json:"status"` // pending, assigned, repairing, completed
-	AcceptedAt           *time.Time     `json:"accepted_at,omitempty"`
-	CreatedAt            time.Time      `json:"created_at"`
-	UpdatedAt            time.Time      `json:"updated_at"`
-	DeletedAt            gorm.DeletedAt `gorm:"index" json:"-"`
-	
-	User         *User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Technician   *Technician   `gorm:"foreignKey:TechnicianID" json:"technician,omitempty"`
+	ID                 uint           `gorm:"primaryKey" json:"id"`
+	UserID             uint           `gorm:"not null;index" json:"user_id"`
+	TechnicianID       *uint          `gorm:"index" json:"technician_id,omitempty"`
+	ProductName        string         `gorm:"not null" json:"product_name"`
+	PurchaseDate       time.Time      `json:"purchase_date"`
+	CustomerName       string         `gorm:"not null" json:"customer_name"`
+	Phone              string         `gorm:"not null" json:"phone"`
+	Address            string         `gorm:"not null" json:"address"`
+	Latitude           float64        `json:"latitude"`
+	Longitude          float64        `json:"longitude"`
+	SymptomDescription string         `gorm:"type:text" json:"symptom_description"`
+	SymptomPhotos      string         `gorm:"type:jsonb" json:"symptom_photos"`       // JSON array of URLs
+	Status             string         `gorm:"not null;default:pending" json:"status"` // pending, assigned, repairing, completed
+	AcceptedAt         *time.Time     `json:"accepted_at,omitempty"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
+
+	User             *User             `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Technician       *Technician       `gorm:"foreignKey:TechnicianID" json:"technician,omitempty"`
 	RepairCompletion *RepairCompletion `gorm:"foreignKey:RepairRequestID" json:"repair_completion,omitempty"`
 }
 
@@ -68,11 +68,11 @@ type RepairCompletion struct {
 	TechnicianID     uint      `gorm:"not null" json:"technician_id"`
 	RepairDetails    string    `gorm:"type:text" json:"repair_details"`
 	PartsUsed        string    `gorm:"type:text" json:"parts_used"`
-	PaymentAmount    int       `gorm:"not null" json:"payment_amount"` // in won
-	PaymentMethod    string    `gorm:"not null" json:"payment_method"` // card, cash, transfer
+	PaymentAmount    int       `gorm:"not null" json:"payment_amount"`      // in won
+	PaymentMethod    string    `gorm:"not null" json:"payment_method"`      // card, cash, transfer
 	CompletionPhotos string    `gorm:"type:jsonb" json:"completion_photos"` // JSON array of URLs
 	CompletedAt      time.Time `json:"completed_at"`
-	
+
 	RepairRequest *RepairRequest `gorm:"foreignKey:RepairRequestID" json:"-"`
 	Technician    *Technician    `gorm:"foreignKey:TechnicianID" json:"technician,omitempty"`
 }
@@ -102,20 +102,20 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	Token string `json:"token"`
+	Token string      `json:"token"`
 	User  interface{} `json:"user"`
 }
 
 type CreateRepairRequest struct {
-	ProductName        string    `json:"product_name" binding:"required"`
-	PurchaseDate       time.Time `json:"purchase_date" binding:"required"`
-	CustomerName       string    `json:"customer_name" binding:"required"`
-	Phone              string    `json:"phone" binding:"required"`
-	Address            string    `json:"address" binding:"required"`
-	Latitude           float64   `json:"latitude"`
-	Longitude          float64   `json:"longitude"`
-	SymptomDescription string    `json:"symptom_description"`
-	SymptomPhotos      []string  `json:"symptom_photos"`
+	ProductName        string   `json:"product_name" binding:"required"`
+	PurchaseDate       string   `json:"purchase_date" binding:"required"`
+	CustomerName       string   `json:"customer_name" binding:"required"`
+	Phone              string   `json:"phone" binding:"required"`
+	Address            string   `json:"address" binding:"required"`
+	Latitude           float64  `json:"latitude"`
+	Longitude          float64  `json:"longitude"`
+	SymptomDescription string   `json:"symptom_description"`
+	SymptomPhotos      []string `json:"symptom_photos"`
 }
 
 type CompleteRepairRequest struct {
@@ -141,18 +141,18 @@ type UpdateFCMTokenRequest struct {
 }
 
 type DashboardStats struct {
-	TodayRequests   int64 `json:"today_requests"`
-	TodayAssigned   int64 `json:"today_assigned"`
-	TodayCompleted  int64 `json:"today_completed"`
-	PendingRequests int64 `json:"pending_requests"`
-	TotalTechnicians int64 `json:"total_technicians"`
+	TodayRequests       int64 `json:"today_requests"`
+	TodayAssigned       int64 `json:"today_assigned"`
+	TodayCompleted      int64 `json:"today_completed"`
+	PendingRequests     int64 `json:"pending_requests"`
+	TotalTechnicians    int64 `json:"total_technicians"`
 	ApprovedTechnicians int64 `json:"approved_technicians"`
 }
 
 type Statistics struct {
-	TotalRevenue     int64                   `json:"total_revenue"`
-	MonthlyRevenue   []MonthlyStat           `json:"monthly_revenue"`
-	TechnicianStats  []TechnicianStat        `json:"technician_stats"`
+	TotalRevenue    int64            `json:"total_revenue"`
+	MonthlyRevenue  []MonthlyStat    `json:"monthly_revenue"`
+	TechnicianStats []TechnicianStat `json:"technician_stats"`
 }
 
 type MonthlyStat struct {

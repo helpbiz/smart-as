@@ -62,55 +62,58 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.CORSMiddleware())
 
-	api := r.Group("/api/v1")
-	{
-		customer := api.Group("/customer")
-		{
-			customer.POST("/register", customerHandler.Register)
-			customer.POST("/login", customerHandler.Login)
-			customer.POST("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequest)
-			customer.POST("/repair-requests/with-photos", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequestWithPhotos)
-			customer.POST("/upload-photo", middleware.AuthMiddleware(svc), customerHandler.UploadPhoto)
-			customer.GET("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.ListRepairRequests)
-			customer.GET("/repair-requests/:id", middleware.AuthMiddleware(svc), customerHandler.GetRepairRequest)
-			customer.PUT("/repair-requests/:id/fcm-token", middleware.AuthMiddleware(svc), customerHandler.UpdateFCMToken)
-		}
-
-		technician := api.Group("/technician")
-		{
-			technician.POST("/register", technicianHandler.Register)
-			technician.POST("/login", technicianHandler.Login)
-			technician.GET("/repair-requests", middleware.AuthMiddleware(svc), technicianHandler.ListAvailableRequests)
-			technician.POST("/repair-requests/:id/accept", middleware.AuthMiddleware(svc), technicianHandler.AcceptRequest)
-			technician.GET("/assignments", middleware.AuthMiddleware(svc), technicianHandler.ListAssignments)
-			technician.POST("/assignments/:id/start", middleware.AuthMiddleware(svc), technicianHandler.StartRepair)
-			technician.POST("/assignments/:id/complete", middleware.AuthMiddleware(svc), technicianHandler.CompleteRepair)
-			technician.PUT("/fcm-token", middleware.AuthMiddleware(svc), technicianHandler.UpdateFCMToken)
-		}
-
-		admin := api.Group("/admin")
-		{
-			admin.POST("/login", adminHandler.Login)
-			admin.POST("/register", adminHandler.CreateAdmin)
-			admin.GET("/dashboard", middleware.AuthMiddleware(svc), adminHandler.GetDashboard)
-			admin.GET("/technicians", middleware.AuthMiddleware(svc), adminHandler.ListTechnicians)
-			admin.PUT("/technicians/:id/approve", middleware.AuthMiddleware(svc), adminHandler.ApproveTechnician)
-			admin.GET("/repair-requests", middleware.AuthMiddleware(svc), adminHandler.ListRepairRequests)
-			admin.GET("/statistics", middleware.AuthMiddleware(svc), adminHandler.GetStatistics)
-			admin.GET("/export/excel", middleware.AuthMiddleware(svc), adminHandler.ExportExcel)
-		}
-	}
-
+	// Health check first
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// API routes - MUST be before static routes
+	api := r.Group("/api")
+	{
+		v1 := api.Group("/v1")
+		{
+			customer := v1.Group("/customer")
+			{
+				customer.POST("/register", customerHandler.Register)
+				customer.POST("/login", customerHandler.Login)
+				customer.POST("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequest)
+				customer.POST("/repair-requests/with-photos", middleware.AuthMiddleware(svc), customerHandler.CreateRepairRequestWithPhotos)
+				customer.POST("/upload-photo", middleware.AuthMiddleware(svc), customerHandler.UploadPhoto)
+				customer.GET("/repair-requests", middleware.AuthMiddleware(svc), customerHandler.ListRepairRequests)
+				customer.GET("/repair-requests/:id", middleware.AuthMiddleware(svc), customerHandler.GetRepairRequest)
+				customer.PUT("/repair-requests/:id/fcm-token", middleware.AuthMiddleware(svc), customerHandler.UpdateFCMToken)
+			}
+
+			technician := v1.Group("/technician")
+			{
+				technician.POST("/register", technicianHandler.Register)
+				technician.POST("/login", technicianHandler.Login)
+				technician.GET("/repair-requests", middleware.AuthMiddleware(svc), technicianHandler.ListAvailableRequests)
+				technician.POST("/repair-requests/:id/accept", middleware.AuthMiddleware(svc), technicianHandler.AcceptRequest)
+				technician.GET("/assignments", middleware.AuthMiddleware(svc), technicianHandler.ListAssignments)
+				technician.POST("/assignments/:id/start", middleware.AuthMiddleware(svc), technicianHandler.StartRepair)
+				technician.POST("/assignments/:id/complete", middleware.AuthMiddleware(svc), technicianHandler.CompleteRepair)
+				technician.PUT("/fcm-token", middleware.AuthMiddleware(svc), technicianHandler.UpdateFCMToken)
+			}
+
+			admin := v1.Group("/admin")
+			{
+				admin.POST("/login", adminHandler.Login)
+				admin.POST("/register", adminHandler.CreateAdmin)
+				admin.GET("/dashboard", middleware.AuthMiddleware(svc), adminHandler.GetDashboard)
+				admin.GET("/technicians", middleware.AuthMiddleware(svc), adminHandler.ListTechnicians)
+				admin.PUT("/technicians/:id/approve", middleware.AuthMiddleware(svc), adminHandler.ApproveTechnician)
+				admin.GET("/repair-requests", middleware.AuthMiddleware(svc), adminHandler.ListRepairRequests)
+				admin.GET("/statistics", middleware.AuthMiddleware(svc), adminHandler.GetStatistics)
+				admin.GET("/export/excel", middleware.AuthMiddleware(svc), adminHandler.ExportExcel)
+			}
+		}
+	}
+
+	// Static files AFTER API routes
 	r.Static("/uploads", "./uploads")
 	r.Static("/assets", "./frontend/admin-web/dist/assets")
 	r.StaticFile("/", "./frontend/admin-web/dist/index.html")
-	r.NoRoute(func(c *gin.Context) {
-		c.File("./frontend/admin-web/dist/index.html")
-	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	log.Printf("Server starting on %s", addr)
