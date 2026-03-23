@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
@@ -78,7 +80,7 @@ func Load(path string) (*Config, error) {
 
 func (d *DatabaseConfig) DSN() string {
 	return "host=" + d.Host +
-		" port=" + string(rune(d.Port)) +
+		" port=" + strconv.Itoa(d.Port) +
 		" user=" + d.User +
 		" password=" + d.Password +
 		" dbname=" + d.DBName +
