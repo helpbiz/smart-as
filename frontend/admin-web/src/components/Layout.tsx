@@ -1,14 +1,19 @@
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { ReactNode } from 'react';
 
 const navItems = [
-  { path: '/', label: '대시보드', icon: '📊' },
+  { path: '/dashboard', label: '대시보드', icon: '📊' },
   { path: '/technicians', label: '기사 관리', icon: '🔧' },
   { path: '/requests', label: '접수 목록', icon: '📋' },
   { path: '/statistics', label: '정산/통계', icon: '📈' },
   { path: '/export', label: '엑셀 출력', icon: '📥' },
 ];
 
-export default function Layout() {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const handleLogout = () => {
@@ -48,7 +53,7 @@ export default function Layout() {
         </div>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
-        <Outlet />
+        {children}
       </main>
     </div>
   );
