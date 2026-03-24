@@ -114,6 +114,9 @@ func main() {
 	r.Static("/uploads", "./uploads")
 	r.Static("/assets", "./frontend/admin-web/dist/assets")
 	r.StaticFile("/", "./frontend/admin-web/dist/index.html")
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./frontend/admin-web/dist/index.html")
+	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	log.Printf("Server starting on %s", addr)

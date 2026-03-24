@@ -28,23 +28,27 @@ export default function RegisterScreen({ onRegisterSuccess, onLoginLink }: { onR
       return;
     }
 
+    console.log('Starting registration...', { phone, name, email, serviceArea });
     setLoading(true);
     setErrorMsg('');
     try {
-      await authApi.register({
+      const result = await authApi.register({
         phone,
         name,
         password,
         email: email || undefined,
         service_area: serviceArea || undefined,
       });
+      console.log('Registration success:', result);
       Alert.alert(
         '가입 신청 완료',
         '관리자 승인 후 로그인 가능합니다.\n승인까지 잠시만 기다려주세요.',
         [{ text: '확인', onPress: onLoginLink }]
       );
     } catch (error: any) {
-      const message = error.response?.data?.error || '가입 실패';
+      console.log('Registration error:', error);
+      console.log('Error response:', error.response?.data);
+      const message = error.response?.data?.error || error.message || '가입 실패';
       setErrorMsg(message);
     } finally {
       setLoading(false);

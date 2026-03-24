@@ -6,7 +6,7 @@ import type { Technician } from '../types';
 export default function Technicians() {
   const queryClient = useQueryClient();
 
-  const { data: technicians, isLoading } = useQuery({
+  const { data: technicians, isLoading, isError, error } = useQuery({
     queryKey: ['technicians'],
     queryFn: async () => {
       const response = await technicianApi.list();
@@ -23,6 +23,14 @@ export default function Technicians() {
 
   if (isLoading) {
     return <div className="text-gray-500">로딩 중...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        에러: {error?.message || '데이터를 불러올 수 없습니다'}
+      </div>
+    );
   }
 
   const techList = (technicians || []) as Technician[];
