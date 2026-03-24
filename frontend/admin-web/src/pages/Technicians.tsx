@@ -3,6 +3,13 @@ import { technicianApi } from '../api';
 import StatusBadge from '../components/StatusBadge';
 import type { Technician } from '../types';
 
+function getEmail(email: any): string {
+  if (!email) return '-';
+  if (typeof email === 'string') return email || '-';
+  if (email.Valid && email.String) return email.String;
+  return '-';
+}
+
 export default function Technicians() {
   const queryClient = useQueryClient();
 
@@ -61,7 +68,7 @@ export default function Technicians() {
                 <tr key={tech.id}>
                   <td className="px-6 py-4">{tech.name}</td>
                   <td className="px-6 py-4">{tech.phone}</td>
-                  <td className="px-6 py-4">{tech.email || '-'}</td>
+                  <td className="px-6 py-4">{getEmail(tech.email)}</td>
                   <td className="px-6 py-4">
                     <StatusBadge status={tech.status} type="technician" />
                   </td>
