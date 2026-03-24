@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type User struct {
 	ID           uint           `gorm:"primaryKey" json:"id"`
 	Phone        string         `gorm:"uniqueIndex;not null" json:"phone"`
 	Name         string         `gorm:"not null" json:"name"`
-	Email        string         `gorm:"uniqueIndex" json:"email,omitempty"`
+	Email        sql.NullString `gorm:"uniqueIndex" json:"email,omitempty"`
 	PasswordHash string         `gorm:"not null" json:"-"`
 	FCMToken     string         `json:"fcm_token,omitempty"`
 	CreatedAt    time.Time      `json:"created_at"`
@@ -90,10 +91,10 @@ type Admin struct {
 // Request/Response DTOs
 
 type RegisterRequest struct {
-	Phone    string `json:"phone" binding:"required"`
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Phone    string  `json:"phone" binding:"required"`
+	Name     string  `json:"name" binding:"required"`
+	Email    *string `json:"email"`
+	Password string  `json:"password" binding:"required,min=6"`
 }
 
 type LoginRequest struct {

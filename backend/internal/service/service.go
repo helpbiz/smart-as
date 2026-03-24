@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"math"
@@ -42,8 +43,10 @@ func (s *Service) RegisterUser(req *models.RegisterRequest) (*models.User, error
 	user := &models.User{
 		Phone:        req.Phone,
 		Name:         req.Name,
-		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
+	}
+	if req.Email != nil && *req.Email != "" {
+		user.Email = sql.NullString{String: *req.Email, Valid: true}
 	}
 
 	if err := s.repo.CreateUser(user); err != nil {
