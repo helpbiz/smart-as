@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { authApi } from '../api';
 
-export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
+export default function LoginScreen({ onLogin, onRegisterLink }: { onLogin: () => void; onRegisterLink?: () => void }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -71,6 +71,12 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
             <Text style={styles.buttonText}>로그인</Text>
           )}
         </TouchableOpacity>
+
+        {onRegisterLink && (
+          <TouchableOpacity style={styles.linkButton} onPress={onRegisterLink}>
+            <Text style={styles.linkText}>기사 가입은 <Text style={styles.linkHighlight}>여기</Text>를 눌러주세요</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -87,4 +93,7 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 18, fontWeight: '600' },
   errorBox: { backgroundColor: '#FFE5E5', padding: 12, borderRadius: 8 },
   errorText: { color: '#D00', fontSize: 14, textAlign: 'center' },
+  linkButton: { marginTop: 16, alignItems: 'center' },
+  linkText: { fontSize: 14, color: '#666' },
+  linkHighlight: { color: '#007AFF', fontWeight: '600' },
 });

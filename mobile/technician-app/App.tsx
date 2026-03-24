@@ -4,14 +4,22 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 import JobListScreen from './src/screens/JobListScreen';
 import AssignmentListScreen from './src/screens/AssignmentListScreen';
 import JobDetailScreen from './src/screens/JobDetailScreen';
 import MyPageScreen from './src/screens/MyPageScreen';
 
+type AuthScreen = 'login' | 'register';
+
 type Tab = 'jobs' | 'assignments' | 'mypage';
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Main: undefined;
+  JobDetail: { job: any };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function MainTabs({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>('jobs');
@@ -63,6 +71,11 @@ function MainTabs({ onLogout }: { onLogout: () => void }) {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
+
+  const handleRegisterSuccess = () => {
+    setAuthScreen('login');
+  };
 
   useEffect(() => {
     checkAuth();
@@ -110,7 +123,10 @@ export default function App() {
   }
 
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+    if (authScreen === 'register') {
+      return <RegisterScreen onRegisterSuccess={handleRegisterSuccess} onLoginLink={() => setAuthScreen('login')} />;
+    }
+    return <LoginScreen onLogin={handleLogin} onRegisterLink={() => setAuthScreen('register')} />;
   }
 
   return (
