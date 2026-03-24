@@ -79,7 +79,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
     setLoading(true);
     try {
-      await authApi.register(cleanPhone, name, '', password);
+      await authApi.register(cleanPhone, name, undefined, password);
       setErrorMsg('');
       alert('회원가입 성공! 로그인 해주세요.');
       setIsRegisterMode(false);

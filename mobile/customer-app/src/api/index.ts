@@ -21,8 +21,11 @@ api.interceptors.request.use(async (config) => {
 });
 
 export const authApi = {
-  register: (phone: string, name: string, email: string, password: string) =>
-    api.post('/customer/register', { phone, name, email, password }),
+  register: (phone: string, name: string, email: string | undefined, password: string) => {
+    const data: any = { phone, name, password };
+    if (email && email.trim() !== '') data.email = email;
+    return api.post('/customer/register', data);
+  },
   login: (phone: string, password: string) =>
     api.post('/customer/login', { phone, password }),
 };

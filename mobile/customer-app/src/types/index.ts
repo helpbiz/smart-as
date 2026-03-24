@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://192.168.1.127:8088/api/v1';
+export const API_BASE_URL = 'http://192.168.1.2:8080/api/v1';
 
 export interface User {
   id: number;
