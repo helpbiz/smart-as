@@ -98,12 +98,15 @@ func (s *Service) RegisterTechnician(req *models.TechnicianRegisterRequest) (*mo
 	tech := &models.Technician{
 		Phone:        req.Phone,
 		Name:         req.Name,
-		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
 		Status:       "pending",
 		ServiceArea:  req.ServiceArea,
 		Latitude:     req.Latitude,
 		Longitude:    req.Longitude,
+	}
+
+	if req.Email != nil && *req.Email != "" {
+		tech.Email = sql.NullString{String: *req.Email, Valid: true}
 	}
 
 	if err := s.repo.CreateTechnician(tech); err != nil {

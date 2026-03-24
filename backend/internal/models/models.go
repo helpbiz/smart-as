@@ -25,7 +25,7 @@ type Technician struct {
 	ID           uint           `gorm:"primaryKey" json:"id"`
 	Phone        string         `gorm:"uniqueIndex;not null" json:"phone"`
 	Name         string         `gorm:"not null" json:"name"`
-	Email        string         `gorm:"uniqueIndex" json:"email,omitempty"`
+	Email        sql.NullString `gorm:"uniqueIndex" json:"email,omitempty"`
 	PasswordHash string         `gorm:"not null" json:"-"`
 	FCMToken     string         `json:"fcm_token,omitempty"`
 	Status       string         `gorm:"not null;default:pending" json:"status"` // pending, approved, suspended
@@ -130,7 +130,7 @@ type CompleteRepairRequest struct {
 type TechnicianRegisterRequest struct {
 	Phone       string  `json:"phone" binding:"required"`
 	Name        string  `json:"name" binding:"required"`
-	Email       string  `json:"email"`
+	Email       *string `json:"email"`
 	Password    string  `json:"password" binding:"required,min=6"`
 	ServiceArea string  `json:"service_area"`
 	Latitude    float64 `json:"latitude"`
