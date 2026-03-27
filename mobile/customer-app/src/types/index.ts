@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.2:8080/api/v1';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://foryouelec.co.kr/api/v1';
 
 export interface User {
   id: number;
